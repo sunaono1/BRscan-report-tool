@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""BRscan报告整理工具 —— golin 扫描报告读取与整理（报告读取模块独立版）
+"""BRscan报告整理工具 —— 扫描报告读取与整理（报告读取模块独立版）
 
 干什么:
-    读 golin 扫描报告 xlsx（+同名 html 的扫描开关）→ 一键整理成结构化摘要（markdown）:
+    读 扫描报告 xlsx（+同名 html 的扫描开关）→ 一键整理成结构化摘要（markdown）:
     概览统计 / 扫描开关 / 存活主机 / 端口按主机 / 高危与管理端口提示 / Web 站点 /
     PoC 命中 / 弱口令统计 / 组件指纹清单。
-    报告读取模块（load_golin / load_flags）与 BRscan-assess.py 同源，可单独 import 复用。
+    报告读取模块（load_report / load_flags）与 BRscan-assess.py 同源，可单独 import 复用。
 
 用法:
-    python3 BRscan报告整理工具.py <golin报告.xlsx> [选项]
+    python3 BRscan报告整理工具.py <报告.xlsx> [选项]
 
 选项:
     --html PATH   指定同名 html（默认自动找同目录同前缀 *.html，读取口令/漏洞扫描开关）
@@ -17,7 +17,7 @@
     --top N       每类明细最多列 N 行（默认 20，超出截断并标注总数）
 
 输出示例:
-    python3 BRscan报告整理工具.py 扫描输出/信息安全检查_全端口-GoLin.xlsx
+    python3 BRscan报告整理工具.py 扫描输出/报告.xlsx
     python3 BRscan报告整理工具.py 报告.xlsx --out 摘要.md --top 50
 
 纪律: 弱口令只记命中数量与服务类型/模式，不抄用户/密码明文。
@@ -31,10 +31,10 @@ import sys
 import openpyxl
 
 # ================================ 报告读取模块 ================================
-# （自 BRscan-assess.py 抽出的独立读取层：golin 报告 xlsx + html 开关）
+# （自 BRscan-assess.py 抽出的独立读取层：扫描报告 xlsx + html 开关）
 
-def load_golin(xlsx_path):
-    """读 golin 扫描报告 xlsx → {"ports", "alives", "vulns", "cracks"}。
+def load_report(xlsx_path):
+    """读 扫描报告 xlsx → {"ports", "alives", "vulns", "cracks"}。
     弱口令资产表列: 序号 主机 端口 用户 密码 模式 —— 只读 主机/端口/模式，不读 用户/密码。"""
     wb = openpyxl.load_workbook(xlsx_path, data_only=True)
     data = {"ports": [], "alives": [], "vulns": [], "cracks": []}
@@ -59,7 +59,7 @@ def load_golin(xlsx_path):
 
 
 def load_flags(html_path):
-    """读 golin 同名 html 的扫描开关 → (口令扫描开, 漏洞扫描开)，缺失/未标注为 None。"""
+    """读同名 html 的扫描开关 → (口令扫描开, 漏洞扫描开)，缺失/未标注为 None。"""
     if not html_path or not os.path.exists(html_path):
         return None, None
     raw = open(html_path, encoding="utf-8", errors="replace").read()
@@ -117,7 +117,7 @@ def organize(d, crack_on, poc_on, html_name, top):
                   key=lambda x: (x[0], int(x[1])))
 
     md = []
-    md.append("# golin 扫描报告整理摘要\n")
+    md.append("# 扫描报告整理摘要\n")
     md.append(f"整理时间：{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}　"
               f"整理工具：BRscan报告整理工具\n")
 
@@ -215,8 +215,8 @@ def organize(d, crack_on, poc_on, html_name, top):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="BRscan报告整理工具 —— golin 扫描报告读取与整理")
-    ap.add_argument("xlsx", help="golin 扫描报告 xlsx")
+    ap = argparse.ArgumentParser(description="BRscan报告整理工具 —— 扫描报告读取与整理")
+    ap.add_argument("xlsx", help="扫描报告 xlsx")
     ap.add_argument("--html", default=None, help="同名 html（默认自动查找）")
     ap.add_argument("--out", default=None, help="摘要 markdown 输出路径")
     ap.add_argument("--top", type=int, default=20, help="每类明细最多列 N 行（默认 20）")
@@ -232,7 +232,7 @@ def main():
         cand = [f for f in os.listdir(xdir) if f.endswith(".html") and f.startswith(stem)]
         html = os.path.join(xdir, cand[0]) if cand else None
 
-    d = load_golin(args.xlsx)
+    d = load_report(args.xlsx)
     crack_on, poc_on = load_flags(html)
 
     print(f"报告: {os.path.basename(args.xlsx)}")

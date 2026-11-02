@@ -1,6 +1,6 @@
 # BRscan报告整理工具
 
-golin 扫描报告读取与整理的**独立工具**（自 BRscan 工具链的报告读取模块抽出）：读 golin 扫描报告 xlsx + 同名 html 的扫描开关，一键整理成结构化摘要 markdown。不依赖测评项对应表等任何内部数据源，拿上报告就能跑。
+扫描报告读取与整理的**独立工具**（自 BRscan 工具链的报告读取模块抽出）：读 扫描报告 xlsx + 同名 html 的扫描开关，一键整理成结构化摘要 markdown。不依赖测评项对应表等任何内部数据源，拿上报告就能跑。
 
 > 仓库名受 GitHub 限制为 ASCII（BRscan-report-tool），工具本名 **BRscan报告整理工具**（文件名即 `BRscan报告整理工具.py`）。
 
@@ -8,13 +8,13 @@ golin 扫描报告读取与整理的**独立工具**（自 BRscan 工具链的�
 
 ```bash
 pip install openpyxl
-python3 BRscan报告整理工具.py <golin报告.xlsx>
+python3 BRscan报告整理工具.py <报告.xlsx>
 ```
 
 输出默认落报告同目录 `报告整理_<时间戳>.md`。常用选项：
 
 ```bash
-python3 BRscan报告整理工具.py <golin报告.xlsx> --out 摘要.md --top 50
+python3 BRscan报告整理工具.py <报告.xlsx> --out 摘要.md --top 50
 # --html PATH   指定同名 html（默认自动找同目录同前缀 *.html，读口令/漏洞扫描开关）
 # --out PATH    摘要 markdown 输出路径
 # --top N       每类明细最多列 N 行（默认 20，超出截断并标注总数）
@@ -41,12 +41,12 @@ python3 BRscan报告整理工具.py <golin报告.xlsx> --out 摘要.md --top 50
 
 ## 作为模块复用
 
-报告读取层（`load_golin` / `load_flags`）可单独 import：
+报告读取层（`load_report` / `load_flags`）可单独 import：
 
 ```python
-from BRscan报告整理工具 import load_golin, load_flags
+from BRscan报告整理工具 import load_report, load_flags
 
-data = load_golin("report.xlsx")      # {"ports", "alives", "vulns", "cracks"}
+data = load_report("report.xlsx")      # {"ports", "alives", "vulns", "cracks"}
 crack_on, poc_on = load_flags("report.html")   # (口令扫描开, 漏洞扫描开)，未标注为 None
 ```
 
